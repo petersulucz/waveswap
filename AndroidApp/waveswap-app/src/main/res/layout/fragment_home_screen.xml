@@ -1,0 +1,32 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.braeden.waveswap_app.Fragments.HomeScreenFragment">
+
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="PlAy A sOuNd"
+        android:id="@+id/homescreen_playbutton"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="97dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Listen"
+        android:id="@+id/homescreen_listenbutton"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Company Logo"
+        android:id="@+id/homepage_logobutton"
+        android:layout_marginTop="79dp"
+        android:layout_below="@+id/homescreen_listenbutton"
+        android:layout_centerHorizontal="true" />
+</RelativeLayout>
