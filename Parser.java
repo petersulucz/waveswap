@@ -35,12 +35,9 @@ public class Parser {
 		int counter = 0;
 		int maxIterations = totalBits/transmissionSpeed;
 		
-		System.out.println("NumBytes: " + numBytes + " numBits: " + numBits + " totalBits: " + totalBits);
+		//System.out.println("NumBytes: " + numBytes + " numBits: " + numBits + " totalBits: " + totalBits);
 		
-		while (true) {
-			if (counter == maxIterations) {
-				break;
-			}
+		while (counter != maxIterations) {
 			
 			Byte currentByte = bytes[byteIndex];
 			float frequency = lowFrequency;
@@ -58,10 +55,9 @@ public class Parser {
 			data[0][counter++] = frequency; // does this work? yes.
 		}
 		
-		//float[][] data, java.lang.String filename, AudioFileType type, SampleAudioFormat saf) throws java.io.IOException, OperationUnsupportedException, FileFormatException
 		WavFileReaderWriter wfrw = new WavFileReaderWriter();
 		try {
-			SampleAudioFormat format = new SampleAudioFormat(100, 2, 1);
+			SampleAudioFormat format = new SampleAudioFormat(44100, 16, 1);
 			wfrw.writeAudioFile(data, filePath, AudioFileType.WAV, format);
 			System.out.println("hello");
 		} catch (IOException e) {
