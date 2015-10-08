@@ -4,7 +4,28 @@
     tools:context="com.example.braeden.waveswap_app.Fragments.ListenFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView android:layout_width="match_parent" android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start"
+        android:id="@+id/listenfragment_listen_button"
+        android:layout_gravity="center_horizontal|bottom" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="462dp"
+        android:layout_gravity="left|top"
+        android:id="@+id/listen_fragment_frame">
+
+    </FrameLayout>
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/listenfragment_seekbar"
+        android:layout_gravity="left|top"
+        android:max="1000000"
+        android:progress="0" />
 
 </FrameLayout>
