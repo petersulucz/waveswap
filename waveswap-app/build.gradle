@@ -22,4 +22,17 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:23.0.1'
+    compile files('libs/beads.jar')
+    compile files('libs/beads-io.jar')
+    compile files('libs/jarjar-1.0.jar')
+    compile files('libs/jl1.0.1.jar')
+    compile files('libs/jna.jar')
+    compile files('libs/mp3spi1.9.4.jar')
+    compile files('libs/org-jaudiolibs-audioservers.jar')
+    compile files('libs/org-jaudiolibs-audioservers-jack.jar')
+    compile files('libs/org-jaudiolibs-audioservers-javasound.jar')
+    compile files('libs/org-jaudiolibs-jnajack.jar')
+    compile files('libs/tools.jar')
+    compile files('libs/tritonus_aos-0.3.6.jar')
+    compile files('libs/tritonus_share.jar')
 }
