@@ -123,25 +123,28 @@ public class SenderParser {
 			int transmissionSpeed, float lowFrequency, float sensitivity, int replication) {
 		float[][] descriptor = createDescriptor(transmissionSpeed, lowFrequency, sensitivity, replication);
 		float[][] data = createData(bytes, transmissionSpeed, lowFrequency, sensitivity, replication);
-		float[][] transmission = new float[1][descriptor.length + data.length];
+		float[][] transmission = new float[1][descriptor[0].length + data[0].length];
 
-		for (int i = 0; i < descriptor.length; i++) {
-			transmission[1][i] = descriptor[1][i];
+		for (int i = 0; i < descriptor[0].length; i++) {
+			transmission[0][i] = descriptor[0][i];
 		}
 
-		for (int j = descriptor.length; j < data.length; j++) {
-			transmission[1][j] = data[1][j];
+		for (int j = descriptor[0].length; j < data[0].length; j++) {
+			transmission[0][j] = data[0][j];
 		}
-
+        System.out.println("\n\nSTUFF\n" + transmission[0].length + " = " + descriptor[0].length + " + " + data[0].length + "\n\n");
 		WavFileReaderWriter wfrw = new WavFileReaderWriter();
 		try {
 			SampleAudioFormat format = new SampleAudioFormat(44100, 16, 1);
 			wfrw.writeAudioFile(data, filePath, AudioFileType.WAV, format);
 		} catch (IOException e) {
+            System.out.println("CAUGHT -- IOException");
 			e.printStackTrace();
 		} catch (OperationUnsupportedException e) {
+            System.out.println("CAUGHT -- OperationUnsupportedException");
 			e.printStackTrace();
 		} catch (FileFormatException e) {
+            System.out.println("CAUGHT -- FileFormatException");
 			e.printStackTrace();
 		}
 	}
