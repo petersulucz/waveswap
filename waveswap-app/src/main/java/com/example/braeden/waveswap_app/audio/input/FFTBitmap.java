@@ -17,8 +17,8 @@ public class FFTBitmap implements FFTListener {
 
     int column = 0;
     public FFTBitmap(int dimension){
-        this.resultion = dimension;
-        this.bitmap = Bitmap.createBitmap(width, dimension, Bitmap.Config.ARGB_8888);
+        this.resultion = dimension/2;
+        this.bitmap = Bitmap.createBitmap(width, this.resultion, Bitmap.Config.ARGB_8888);
 
         for(int x = 0; x < this.width; x++){
             for(int y = 0; y < this.resultion; y++){
@@ -28,7 +28,7 @@ public class FFTBitmap implements FFTListener {
     }
 
     public void Update(float[] values){
-        for(int i = 0; i < values.length; i++){
+        for(int i = 0; i < values.length/2; i++){
             int value = (int)(values[i] / this.sensitivity * 255);
             this.bitmap.setPixel(column, this.resultion - i - 1, Color.rgb(value, value, value));
         }

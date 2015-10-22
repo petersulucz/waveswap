@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.braeden.waveswap_app.CaptainsLog;
+import com.example.braeden.waveswap_app.audio.process.Butterworth;
 
 /**
  * Created by peter on 10/7/2015.
@@ -15,7 +16,7 @@ import com.example.braeden.waveswap_app.CaptainsLog;
 public class AudioInput extends AsyncTask<Void, Void,  Void> {
 
     private AudioRecord recorder;
-    private int bufferSize = 4096;
+    private int bufferSize = 8192;
     private short[] buffer;
     private volatile boolean cancel = false;
     private FFTListener listener;
@@ -64,12 +65,15 @@ public class AudioInput extends AsyncTask<Void, Void,  Void> {
                 real[i] = (float)this.buffer[i];
             }
 
+            Butterworth.ButterWorth(real);
+
             transform.fft(real, imaginary);
+            //transform.ZoomFFT(real, imaginary);
             this.listener.FFTReady(real);
 
         }while(false == this.cancel);
         CaptainsLog.Info("Stopped recording gracefully");
-
+        this.recorder.stop();
         // there better be a better way to do this
         return null;
     }

@@ -36,8 +36,6 @@ public class BitmapView extends View implements BitmapChangeListener {
 
         if (null != bitmap) {
 
-
-
             canvas.drawBitmap(bitmap, this.scaleMatrix, null);
 
         }

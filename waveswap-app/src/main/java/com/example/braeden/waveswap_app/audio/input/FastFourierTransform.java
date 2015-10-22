@@ -1,5 +1,7 @@
 package com.example.braeden.waveswap_app.audio.input;
 
+import com.example.braeden.waveswap_app.audio.process.Butterworth;
+
 /**
  * Created by peter on 10/7/2015.
  */
@@ -27,7 +29,6 @@ public class FastFourierTransform {
                 PrecomputedCosine[i] = (float)Math.cos(-2 * Math.PI * i / datalength);
                 PrecomputedSin[i] = (float)Math.sin(-2 * Math.PI * i / datalength);
             }
-
         }
 
 
@@ -89,5 +90,33 @@ public class FastFourierTransform {
                     }
                 }
             }
+        }
+
+        public static void frequencyTranslate(float[] data, float[] real, float[] imaginary, float centerFrequency, float sampleRate){
+            float delta = 1f/sampleRate;
+
+            for(int i = 0; i < data.length; i++){
+                real[i] = data[i]*(float)Math.cos(2*Math.PI*(double)centerFrequency*(double)i*(double)delta);
+                imaginary[i] = -data[i]*(float)Math.sin(2*Math.PI*(double)centerFrequency*(double)i*(double)delta);
+            }
+        }
+
+        public void ZoomFFT(float[] realvalues, float[] imaginaryValues)
+        {
+            float centerFrequency = 17000;
+            frequencyTranslate(realvalues, realvalues, imaginaryValues, centerFrequency, 44100);
+            Butterworth.ButterWorth(realvalues);
+            Butterworth.ButterWorth(imaginaryValues);
+            for(int i = 0; i < realvalues.length/2; i++)
+            {
+                realvalues[i] = 16*realvalues[2*i];
+                imaginaryValues[i] = 16*imaginaryValues[2*i];
+            }
+
+//            for(int i = 0; i< realvalues.length/8;i++){
+//                realvalues[i] = 16*realvalues[4*i];
+//                imaginaryValues[i] = 16*imaginaryValues[4*i];
+//            }
+            fft(realvalues, imaginaryValues);
         }
 }
