@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 
 import com.example.braeden.waveswap_app.audio.input.Tuple;
+import com.example.braeden.waveswap_app.audio.process.FFTParser;
 
 /**
  * Created by peter on 10/7/2015.
@@ -14,10 +15,12 @@ public class FFTBitmap implements FFTListener {
     private BitmapChangeListener listener;
     private float sensitivity = 8192;
     private int width = 100;
+    private FFTParser parser;
 
     int column = 0;
     public FFTBitmap(int dimension){
         this.resultion = dimension/2;
+        this.parser = new FFTParser(this.resultion, 44100);
         this.bitmap = Bitmap.createBitmap(width, this.resultion, Bitmap.Config.ARGB_8888);
 
         for(int x = 0; x < this.width; x++){
@@ -25,12 +28,20 @@ public class FFTBitmap implements FFTListener {
                 this.bitmap.setPixel(x, y, Color.BLACK);
             }
         }
+
     }
 
     public void Update(float[] values){
-        for(int i = 0; i < values.length/2; i++){
+        for(int i = 0; i < values.length/2; i++)
+        {
             int value = (int)(values[i] / this.sensitivity * 255);
             this.bitmap.setPixel(column, this.resultion - i - 1, Color.rgb(value, value, value));
+            if(this.parser.getWeights()[i] >= this.parser.getSensitivity())
+            {
+                this.bitmap.setPixel(column, this.resultion - i, Color.RED);
+                this.bitmap.setPixel(column, this.resultion - i - 2, Color.RED);
+                this.bitmap.setPixel(column, this.resultion - i - 1, Color.RED);
+            }
         }
         column++;
         column = column % this.width;
@@ -38,6 +49,7 @@ public class FFTBitmap implements FFTListener {
 
     public void SetSensitivity(float sensitivity){
         this.sensitivity = sensitivity;
+        this.parser.setSensitivity(sensitivity);
     }
 
     public Bitmap GetBitmap(){
@@ -50,6 +62,7 @@ public class FFTBitmap implements FFTListener {
 
     @Override
     public void FFTReady(float[] fft) {
+        this.parser.FFTReady(fft);
         this.Update(fft);
 
         if(null != listener){

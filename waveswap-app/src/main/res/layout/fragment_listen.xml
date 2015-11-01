@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/listenfragment_seekbar"
         android:layout_gravity="left|top"
-        android:max="1000000"
+        android:max="10000"
         android:progress="0" />
 
 </FrameLayout>
