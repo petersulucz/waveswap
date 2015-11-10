@@ -1,14 +1,11 @@
 package com.example.braeden.waveswap_app.waveswapAPI;
+import java.io.*;
 
 import net.beadsproject.beads.data.SampleAudioFormat;
 import net.beadsproject.beads.data.audiofile.AudioFileType;
 import net.beadsproject.beads.data.audiofile.FileFormatException;
 import net.beadsproject.beads.data.audiofile.OperationUnsupportedException;
 import net.beadsproject.beads.data.audiofile.WavFileReaderWriter;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 
 /**
  * Parses a file to eventually be converted to a sound wave.
@@ -17,16 +14,20 @@ import java.io.IOException;
  */
 public class SenderParser {
 
+	private static final int sampleRate = 44100;
+	
+	public static final int BIT_BY_BIT = 1;
+	public static final int CASCADE = 2;
+	
 	public float[] transmissionDescriptor = {6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
-	public float[][] createDescriptor(int transmissionSpeed, float lowFrequency,
+	public float[] createDescriptor(int transmissionSpeed, float lowFrequency,
 			float sensitivity, int replicationAmount) {
-		float[][] data = new float[1][transmissionDescriptor.length * replicationAmount];
+		float[] data = new float[transmissionDescriptor.length * replicationAmount];
 
 		for (int i = 0; i < transmissionDescriptor.length; i++) {
 			for (int k = i * replicationAmount, j = 0; j < replicationAmount; k++, j++) {
-				//data[1][k] = transmissionDescriptor[i] * 1000;
-                data[0][k] = transmissionDescriptor[i] * 1000;
+				data[k] = transmissionDescriptor[i] * 1000;
 			}
 		}
 
@@ -43,7 +44,7 @@ public class SenderParser {
 	 * Lastly, replicationAmount refers to the amount of copies that data will have,
 	 * so [5 5 5 4] with replicationAmount 2 becomes [5 5 lf lf 5 5 4 4]
 	 */
-	public float[][] createData(byte[] bytes, int transmissionSpeed,
+	public float[] createData(byte[] bytes, int transmissionSpeed,
 			float lowFrequency, float sensitivity, int replicationAmount) {
 		int numBytes = bytes.length;
 		int numBits = numBytes * 8;
@@ -97,20 +98,109 @@ public class SenderParser {
 				bitIndex++;
 				maskShiftAmount--;
 			}
+			
+			float effectiveFrequency = frequency == previousFrequency ? lowFrequency : frequency;
+			
 			for (int i = 0; i < replicationAmount; i++) {
-				if (frequency != previousFrequency) {
-					data[0][dataIndex + i] = frequency;
-					previousFrequency = frequency;
-				} else {
-					data[0][dataIndex + i] = lowFrequency;
-					previousFrequency = lowFrequency;
-				}
+				data[0][dataIndex + i] = effectiveFrequency;
 			}
+			
+			previousFrequency = effectiveFrequency;
+			
 			dataIndex += replicationAmount;
 		}
-		return data;
+		return data[0];
 	}
-
+	
+	//The data in frequencies should have the replication amount reflect the 
+	//amount of time that the user would like to play the sound, so no need to worry
+	//about that.
+	private static float[][] createSineWave(float[] frequencies, int transmissionSpeed, float lowFrequency, float sensitivity, int method)
+	{
+		if(method == BIT_BY_BIT)
+		{
+			//To use BIT_BY_BIT, float[][] frequencies MUST have been made
+			//by createData(...) using a transmissonSpeed of 1.
+			//When using BIT_BY_BIT, "parameters" is: (float targetFrequency, int numChannels)
+			//Where "targetFrequency" is lowFrequency + sensitivity (since only that frequency should play)
+			return createSineWaveBitByBit(frequencies, lowFrequency, sensitivity, transmissionSpeed);
+		}
+		
+		if(method == CASCADE)
+		{
+			//To use CASCADE, float[][] frequencies MUST have been made
+			//by createData(...) using any transmission speed, but for now a
+			//sensitivity of "500".
+			//When using CASCADE, "parameters"
+			return createSineWaveCascade(frequencies);
+		}
+		//Used the below as reference
+		/*float[][] buffer = new float[1][frequencies[0].length];
+		double phi = 0;
+		for(int i = 0; i < buffer[0].length; i++){
+			phi += 2*Math.PI*1.0/sampleRate*frequencies[0][i];
+			buffer[0][i] = (float)Math.sin(phi);
+		}
+		return buffer;*/
+		return null;
+	}
+	
+	/**
+	 * Concerns: size of frequencies may not be divisible by numChannels, resulting in
+	 *           erroneous "0"s added to the end of the decoding.  However, since in the 
+	 *           final stage the descriptor should give the number of bytes(bits?), this
+	 *           shouldn't be a problem.
+	 *           
+	 *           Output: sine wave of floats on "transmissionSpeed" channels 
+	 */
+	private static float[][] createSineWaveBitByBit(float[] frequencies, float lowFrequency, float sensitivity, int numChannels)
+	{
+		//E.x., frequencies.length = {1-numChannels} : 1, so frequencies.length + (numChannels - frequencies.length % numChannels) = closest high number divisible by numChannels
+		int frequenciesPerChannel = (frequencies.length + (numChannels - frequencies.length % numChannels)) / numChannels;
+		float[][] buffer = new float[numChannels][frequenciesPerChannel];
+		double phi = 0;
+		
+		//Add the floats to the buffer if they meet targetFrequency
+		int currentChannel = 0;
+		int currentFrequency = 0;
+		boolean wasTargetFrequency = false;
+		for(int i = 0; i < frequencies.length; i++)
+		{
+			float frequency = frequencies[i];
+			
+			if((frequency == lowFrequency + sensitivity*2 || frequency == lowFrequency && wasTargetFrequency))
+			{
+				//Change frequency to channel equivalent.
+				//Channel 0: lowFrequency
+				//Channel 1: lowFrequency + sensitivity, etc.
+				frequency = lowFrequency + sensitivity * currentChannel;
+				phi += 2*Math.PI*1.0/sampleRate*frequency;
+				buffer[currentChannel][currentFrequency] = (float)Math.sin(phi);
+				wasTargetFrequency = true;
+			}
+			else
+			{
+				buffer[currentChannel][currentFrequency] = 0;
+				wasTargetFrequency = false;
+			}
+			
+			currentChannel++;
+			if(currentChannel >= numChannels)
+			{
+				currentChannel = 0;
+				currentFrequency++;
+			}
+		}
+		
+		return buffer;
+	}
+	
+	private static float[][] createSineWaveCascade(float[] frequencies)
+	{
+		return null;
+	}
+	
+	
 	/**
 	 * Converts a byte array into an audio file
 	 * 
@@ -120,37 +210,47 @@ public class SenderParser {
 	 * @param sensitivity Difference between frequencies that hardware can detect
 	 */
 	public void createAudioFile(byte[] bytes, String filePath,
-			int transmissionSpeed, float lowFrequency, float sensitivity, int replication) {
-		float[][] descriptor = createDescriptor(transmissionSpeed, lowFrequency, sensitivity, replication);
-		float[][] data = createData(bytes, transmissionSpeed, lowFrequency, sensitivity, replication);
-		float[][] transmission = new float[1][descriptor[0].length + data[0].length];
+			int transmissionSpeed, float lowFrequency, float sensitivity, int replication, int method) {
+		
+		float[] parsedDescriptor = createDescriptor(method == BIT_BY_BIT ? 1 : transmissionSpeed, lowFrequency, sensitivity, replication);
+		float[] parsedData = createData(bytes, method == BIT_BY_BIT ? 1 : transmissionSpeed, lowFrequency, sensitivity, replication);
+		
+		float[][] descriptor = createSineWave(parsedDescriptor, transmissionSpeed, lowFrequency, sensitivity, method);
+		float[][] data = createSineWave(parsedData, transmissionSpeed, lowFrequency, sensitivity, method);
+		
+		if(descriptor.length != data.length) return;
+		
+		float[][] transmission = new float[descriptor.length][descriptor[0].length + data[0].length];
 
-		for (int i = 0; i < descriptor[0].length; i++) {
-			transmission[0][i] = descriptor[0][i];
+		for (int i = 0; i < descriptor.length; i++) {
+			for (int j = 0; j < descriptor[0].length; j++)
+			{
+				transmission[i][j] = descriptor[i][j];
+			}
 		}
 
-		for (int j = descriptor[0].length; j < data[0].length; j++) {
-			transmission[0][j] = data[0][j];
+		for (int i = 0; i < descriptor.length; i++) {
+			for (int j = 0; j < data[0].length; j++)
+			{
+				transmission[i][j+descriptor[0].length] = data[0][j];
+			}
 		}
-        System.out.println("\n\nSTUFF\n" + transmission[0].length + " = " + descriptor[0].length + " + " + data[0].length + "\n\n");
+
 		WavFileReaderWriter wfrw = new WavFileReaderWriter();
 		try {
 			SampleAudioFormat format = new SampleAudioFormat(44100, 16, 1);
 			wfrw.writeAudioFile(data, filePath, AudioFileType.WAV, format);
 		} catch (IOException e) {
-            System.out.println("CAUGHT -- IOException");
 			e.printStackTrace();
 		} catch (OperationUnsupportedException e) {
-            System.out.println("CAUGHT -- OperationUnsupportedException");
 			e.printStackTrace();
 		} catch (FileFormatException e) {
-            System.out.println("CAUGHT -- FileFormatException");
 			e.printStackTrace();
 		}
 	}
 
-	public void parseFile(File file, String filePath, int transmissionSpeed, float lowFrequency,
-			float sensitivity, int replication) {
+	public void parseFile(File file, String filePath, int transmissionSpeed, float lowFrequency, 
+			float sensitivity, int replication, int method) {
 		try {
 			// Put file bytes into fileData byte array
 			byte[] fileData = new byte[(int) file.length()];
@@ -158,7 +258,7 @@ public class SenderParser {
 			in.read(fileData);
 			in.close();
 
-			createAudioFile(fileData, filePath, transmissionSpeed, lowFrequency, sensitivity, replication);
+			createAudioFile(fileData, filePath, transmissionSpeed, lowFrequency, sensitivity, replication, method);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

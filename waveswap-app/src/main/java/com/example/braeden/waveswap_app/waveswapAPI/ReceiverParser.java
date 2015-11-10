@@ -1,9 +1,5 @@
 package com.example.braeden.waveswap_app.waveswapAPI;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * Parses a file to eventually be converted to a sound wave.
@@ -61,7 +57,7 @@ public class ReceiverParser {
 			}
 			
 			// Should be an exact division
-			int currentValue = Math.round((currentFrequency - lowFrequency - sensitivity) / sensitivity);
+			int currentValue = Math.round((currentFrequency - lowFrequency - sensitivity) / sensitivity); 
 			int currentValueSize = transmissionSpeed;
 
 			// Fill up bytes until you no longer can
@@ -105,7 +101,7 @@ public class ReceiverParser {
 		return bytes;
 	}
 
-	public static void createFile(byte[] bytes, String filepath) throws IOException {
+	public static void createFile(byte[] bytes, String filepath) throws IOException{
 		FileOutputStream stream = new FileOutputStream(filepath);
 		stream.write(bytes);
 		stream.close();

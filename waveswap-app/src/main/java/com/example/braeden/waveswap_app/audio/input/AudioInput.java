@@ -18,6 +18,7 @@ public class AudioInput extends AsyncTask<Void, Void,  Void> {
     private AudioRecord recorder;
     private int bufferSize = 8192;
     private short[] buffer;
+    private boolean[] values;
     private volatile boolean cancel = false;
     private FFTListener listener;
 
@@ -65,11 +66,18 @@ public class AudioInput extends AsyncTask<Void, Void,  Void> {
                 real[i] = (float)this.buffer[i];
             }
 
-            Butterworth.ButterWorth(real);
+            //Butterworth.ButterWorth(real);
 
             transform.fft(real, imaginary);
             //transform.ZoomFFT(real, imaginary);
             this.listener.FFTReady(real);
+            //12, 12.5, 13, 13.5
+            int count = 0;
+            for (int freq = 13500; freq >= 12000; freq -= 500) {
+                values[count++] = real[getIndex(freq, bufferSize)] >= FFTBitmap.sensitivity;
+            }
+            int summary = convertArray(values);
+            BraedensFFT.getInstance().addValue(summary);
 
         }while(false == this.cancel);
         CaptainsLog.Info("Stopped recording gracefully");
@@ -78,5 +86,18 @@ public class AudioInput extends AsyncTask<Void, Void,  Void> {
         return null;
     }
 
+    private int getIndex(int frequency, int bufferSize) {
+        return frequency / (22050 / (bufferSize / 2));
+    }
 
+    private int convertArray(boolean[] arr) {
+        int value = 0;
+        for (int index = 0; index < arr.length; index++) {
+            if (arr[index]) {
+                value += 1;
+            }
+            value <<= 1;
+        }
+        return value>>1;
+    }
 }

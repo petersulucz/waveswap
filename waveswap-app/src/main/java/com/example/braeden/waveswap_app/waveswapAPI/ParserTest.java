@@ -1,22 +1,34 @@
+/*
 package com.example.braeden.waveswap_app.waveswapAPI;
-
-import junit.framework.TestCase;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+//import junit.framework.TestCase;
+
+*/
 /**
- * Parses a file to eventually be converted to a sound wave. Hello
+ * Parses a file to eventually be converted to a sound wave.
  * @authors Hannah Roth, Matthew Montera
  * @date September 15th, 2015
- */
-public class ParserTest extends TestCase {
+ *//*
+
+public class ParserTest {
 	private SenderParser sender;
 	
+	*/
+/**
+	 * Set up a sender for parsing
+	 *//*
+
 	public void setUp() {
 		sender = new SenderParser();
 	}
+
+	*/
+/**
+	 * Test one.
+	 *//*
 
 	public void testOne()
 	{
@@ -59,28 +71,51 @@ public class ParserTest extends TestCase {
 				+ " Successes and " + numFail + " Failures");
 	}
 
-	public void testRealData() {
-		File file = new File("/Users/banana/Desktop/Pictures/bronzeMedal.png");
-		try {
-			// Put file bytes into fileData byte array
-			byte[] fileData = new byte[(int) file.length()];
-			FileInputStream in = new FileInputStream(file);
-			in.read(fileData);
-			in.close();
-			float[][] data = sender.createData(fileData, 1, 1, 1, 2);
-			byte[] returnBytes = ReceiverParser.decodeData(data, fileData.length, 1, 1, 1);
-			ReceiverParser.createFile(returnBytes, "test1");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+	*/
+/**
+	 * Test with real data. Change file path on different machines.
+	 * Chose any file.
+	 *//*
 
-	public boolean testData(int sizeBytes, byte[] testBytes, int testTS,
-			float testLF, float testS) {
-		float[][] data = sender.createData(testBytes, testTS, testLF, testS, 2);
-		byte[] returnBytes = ReceiverParser.decodeData(data, sizeBytes, testTS, testLF, testS);
-		return isEqual(testBytes, returnBytes);
-	}
+//	public void testRealData() {
+//		File file = new File("/Users/banana/Desktop/Pictures/bronzeMedal.png");
+//		try {
+//			// Put file bytes into fileData byte array
+//			byte[] fileData = new byte[(int) file.length()];
+//			FileInputStream in = new FileInputStream(file);
+//			in.read(fileData);
+//			in.close();
+//			float[][] data = sender.createData(fileData, 1, 1, 1, 2);
+//			byte[] returnBytes = ReceiverParser.decodeData(data, fileData.length, 1, 1, 1);
+//			ReceiverParser.createFile(returnBytes, "test1");
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//	}
+
+	*/
+/**
+	 * @param sizeBytes
+	 * @param testBytes
+	 * @param testTS
+	 * @param testLF
+	 * @param testS
+	 * @return
+	 *//*
+
+//	public boolean testData(int sizeBytes, byte[] testBytes, int testTS,
+//			float testLF, float testS) {
+//		float[][] data = sender.createData(testBytes, testTS, testLF, testS, 2);
+//		byte[] returnBytes = ReceiverParser.decodeData(data, sizeBytes, testTS, testLF, testS);
+//		return isEqual(testBytes, returnBytes);
+//	}
+
+	*/
+/**
+	 * @param bytes is the first array of bytes
+	 * @param other is the second array of bytes
+	 * @return if the two arrays of bytes are equal
+	 *//*
 
 	private static boolean isEqual(byte[] bytes, byte[] other) {
 		for (int i = 0; i < bytes.length; i++) {
@@ -91,3 +126,4 @@ public class ParserTest extends TestCase {
 		return true;
 	}
 }
+*/

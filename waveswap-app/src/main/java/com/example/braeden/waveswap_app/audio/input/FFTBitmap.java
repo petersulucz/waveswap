@@ -13,7 +13,7 @@ public class FFTBitmap implements FFTListener {
     private Bitmap bitmap;
     private int resultion;
     private BitmapChangeListener listener;
-    private float sensitivity = 8192;
+    public static float sensitivity = 8192;
     private int width = 100;
     private FFTParser parser;
 

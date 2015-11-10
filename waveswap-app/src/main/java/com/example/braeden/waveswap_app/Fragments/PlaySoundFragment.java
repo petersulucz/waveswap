@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -39,6 +40,7 @@ public class PlaySoundFragment extends Fragment {
     private ImageButton _imageButton;
     private Button _transferButton;
     private Button _browseButton;
+    private EditText _editText;
 
     private String _filePath = null;
     private String outputFile = null;
@@ -101,12 +103,16 @@ public class PlaySoundFragment extends Fragment {
         _imageButton = (ImageButton) view.findViewById(R.id.imageButton);
         _browseButton = (Button) view.findViewById(R.id.browseButton);
         _transferButton = (Button) view.findViewById(R.id.transferButton);
+        _editText = (EditText) view.findViewById(R.id.editText);
+
+        _browseButton.setText("Enter Text");
 
         // Set browse onClick
         _browseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                browseClicked();
+                //browseClicked();
+                textClicked();
             }
         });
 
@@ -133,7 +139,16 @@ public class PlaySoundFragment extends Fragment {
         startActivityForResult(intent, BROWSE_IMAGE);
     }
 
+    private void textClicked() {
+        if (_editText.getText().toString().equals("")) {
+            displayToast("Please enter a phrase!");
+            return;
+        }
+        String text = _editText.getText().toString();
+        createAudio(text.getBytes());
+        playAudio(outputFile);
 
+    }
 
     private void transferClicked() {
         if (_transferButton.getText().equals("Stop")){
@@ -149,15 +164,17 @@ public class PlaySoundFragment extends Fragment {
             return;
         }
 
-
         File transferFile = new File(imageUri.getPath());
-        byte[] fileData = parseFile(transferFile);
+        createAudio(parseFile(transferFile));
+    }
+
+    public void createAudio(byte[] fileData) {
         if (fileData == null) return;
         SenderParser sender = new SenderParser();
 
         // Create path to output file
         outputFile = getActivity().getFilesDir() + "/file";
-        sender.createAudioFile(fileData, outputFile, 1, 1, 1, 1);
+        sender.createAudioFile(fileData, outputFile, 2, 8000, 2000, 4000, SenderParser.BIT_BY_BIT);
         displayToast("Playing audio");
         playAudio(outputFile);
     }
@@ -170,7 +187,7 @@ public class PlaySoundFragment extends Fragment {
         try {
             if (count == 0) {
                 player.setDataSource(path);
-                player.setLooping(false);
+                player.setLooping(true);
                 count++;
             }
             player.prepare();
