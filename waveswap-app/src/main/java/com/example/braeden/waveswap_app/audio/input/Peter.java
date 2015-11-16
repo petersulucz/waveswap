@@ -1,5 +1,7 @@
 package com.example.braeden.waveswap_app.audio.input;
 
+import com.example.braeden.waveswap_app.CaptainsLog;
+
 /**
  * Created by Braeden on 11/9/2015.
  */
@@ -20,7 +22,12 @@ public class Peter {
 
     public void addValue(int value) {
         data[counter++] = value;
-        if (counter == data.length) {
+
+        if(value != 0)
+            CaptainsLog.Info("value = " + value );
+
+        if (counter == data.length)
+        {
             //Send to matt
             counter = 0;
         }

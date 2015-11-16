@@ -36,10 +36,8 @@ public class FFTBitmap implements FFTListener {
         {
             int value = (int)(values[i] / this.sensitivity * 255);
             this.bitmap.setPixel(column, this.resultion - i - 1, Color.rgb(value, value, value));
-            if(this.parser.getWeights()[i] >= this.parser.getSensitivity())
+            if(this.parser.getWeights()[i] >= this.parser.getSensitivity() && i > 3 && i < this.resultion -3)
             {
-                this.bitmap.setPixel(column, this.resultion - i, Color.RED);
-                this.bitmap.setPixel(column, this.resultion - i - 2, Color.RED);
                 this.bitmap.setPixel(column, this.resultion - i - 1, Color.RED);
             }
         }

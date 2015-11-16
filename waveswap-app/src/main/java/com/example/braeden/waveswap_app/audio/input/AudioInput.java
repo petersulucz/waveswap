@@ -16,7 +16,7 @@ import com.example.braeden.waveswap_app.audio.process.Butterworth;
 public class AudioInput extends AsyncTask<Void, Void,  Void> {
 
     private AudioRecord recorder;
-    private int bufferSize = 8192;
+    private int bufferSize = 256;
     private short[] buffer;
     private boolean[] values;
     private volatile boolean cancel = false;
@@ -73,11 +73,14 @@ public class AudioInput extends AsyncTask<Void, Void,  Void> {
             this.listener.FFTReady(real);
             //12, 12.5, 13, 13.5
             int count = 0;
-            for (int freq = 13500; freq >= 12000; freq -= 500) {
-                values[count++] = real[getIndex(freq, bufferSize)] >= FFTBitmap.sensitivity;
+            values = new boolean[3];
+
+            for (int freq = 15000; freq >= 14000; freq -= 500) {
+                values[count++] = Math.abs(real[getIndex(freq, bufferSize)]) >= FFTBitmap.sensitivity;
             }
             int summary = convertArray(values);
-            BraedensFFT.getInstance().addValue(summary);
+            //if(summary != 0)
+                BraedensFFT.getInstance().addValue(summary);
 
         }while(false == this.cancel);
         CaptainsLog.Info("Stopped recording gracefully");
@@ -87,7 +90,7 @@ public class AudioInput extends AsyncTask<Void, Void,  Void> {
     }
 
     private int getIndex(int frequency, int bufferSize) {
-        return frequency / (22050 / (bufferSize / 2));
+        return (int)((double)frequency / (22050.0 / ((double)bufferSize / 2.0)));
     }
 
     private int convertArray(boolean[] arr) {

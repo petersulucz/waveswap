@@ -7,9 +7,13 @@ import java.util.HashMap;
  */
 public class BraedensFFT {
     private static BraedensFFT braeden = null;
-    HashMap<Integer, Integer> map;
+    int[] map = new int[32];
+    private int count = 0;
 
-    private BraedensFFT() {
+
+    private BraedensFFT()
+    {
+        this.map = new int[32];
     }
 
     public static BraedensFFT getInstance() {
@@ -19,19 +23,25 @@ public class BraedensFFT {
         return braeden;
     }
 
-    public void addValue(int given) {
-        if (map.containsKey(given)) {
-            int count = map.get(given);
-            map.put(given, count + 1);
-            if (count > 5) {
-                // Do something
-                Peter.getInstance().addValue(given);
-                map = new HashMap<>();
+    public synchronized void addValue(int given) {
+        map[given]++;
+        count++;
+
+        if(count == 10)
+        {
+            int maxIndex = 0;
+            int max = this.map[0];
+            for(int i = 1; i < this.map.length; i++)
+            {
+                if(this.map[i] > max)
+                {
+                    maxIndex = i;
+                }
             }
-        } else {
-            map.put(given, 1);
+
+            Peter.getInstance().addValue(maxIndex);
+            this.map = new int[32];
+            count = 0;
         }
     }
-
-
 }
