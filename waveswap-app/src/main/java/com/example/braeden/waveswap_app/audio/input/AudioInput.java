@@ -75,9 +75,18 @@ public class AudioInput extends AsyncTask<Void, Void,  Void> {
             int count = 0;
             values = new boolean[3];
 
+            // we are looking at 3 frequencies
+            float[] frequencyWeights = new float[3];
+
+            count = 0;
             for (int freq = 15000; freq >= 14000; freq -= 500) {
-                values[count++] = Math.abs(real[getIndex(freq, bufferSize)]) >= FFTBitmap.sensitivity;
+                // get the weights of our 3 frequencies
+                frequencyWeights[count++] = Math.abs(real[getIndex(freq, bufferSize)]);
             }
+
+            // get the freq weights into a boolean array
+            boolean[] values = ValueNormalizer.NormalizeValues(frequencyWeights, FFTBitmap.sensitivity);
+
             int summary = convertArray(values);
             //if(summary != 0)
                 BraedensFFT.getInstance().addValue(summary);
