@@ -3,6 +3,9 @@ package com.example.braeden.waveswap_app.Fragments;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -145,8 +148,41 @@ public class PlaySoundFragment extends Fragment {
             return;
         }
         String text = _editText.getText().toString();
-        createAudio(text.getBytes());
-        playAudio(outputFile);
+        //createAudio(text.getBytes());
+        //playAudio(outputFile);
+        playSound(text.getBytes());
+    }
+
+    private void playSound(byte[] text) {
+        // AudioTrack definition
+        int mBufferSize = AudioTrack.getMinBufferSize(44100,
+                AudioFormat.CHANNEL_OUT_MONO,
+                AudioFormat.ENCODING_PCM_16BIT);
+
+        AudioTrack mAudioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
+                AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,
+                mBufferSize, AudioTrack.MODE_STREAM);
+
+
+        float[] phis = new float[4];
+        float[] frequencies = new float[]{14000, 14500, 15000, 15500};
+
+        // Sine wave
+        double[] mSound = new double[2*44100];
+        short[] mBuffer = new short[2*44100];
+        for (int i = 0; i < mSound.length; i++) {
+            float freq = frequencies[i / (mSound.length / frequencies.length)];
+            phis[0] += (2.0*Math.PI * freq/44100.0);
+            mSound[i] = Math.sin(phis[0]);
+            mBuffer[i] = (short) (mSound[i]*Short.MAX_VALUE);
+        }
+
+        //mAudioTrack.setStereoVolume(1f, 11f);
+        mAudioTrack.play();
+
+        mAudioTrack.write(mBuffer, 0, mSound.length);
+        mAudioTrack.stop();
+        mAudioTrack.release();
 
     }
 

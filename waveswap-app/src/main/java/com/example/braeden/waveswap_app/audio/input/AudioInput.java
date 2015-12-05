@@ -73,13 +73,13 @@ public class AudioInput extends AsyncTask<Void, Void,  Void> {
             this.listener.FFTReady(real);
             //12, 12.5, 13, 13.5
             int count = 0;
-            values = new boolean[3];
+            values = new boolean[4];
 
             // we are looking at 3 frequencies
-            float[] frequencyWeights = new float[3];
+            float[] frequencyWeights = new float[4];
 
             count = 0;
-            for (int freq = 15000; freq >= 14000; freq -= 500) {
+            for (int freq = 15500; freq >= 14000; freq -= 500) {
                 // get the weights of our 3 frequencies
                 frequencyWeights[count++] = Math.abs(real[getIndex(freq, bufferSize)]);
             }
@@ -91,7 +91,7 @@ public class AudioInput extends AsyncTask<Void, Void,  Void> {
             //if(summary != 0)
                 BraedensFFT.getInstance().addValue(summary);
 
-        }while(false == this.cancel);
+        } while(false == this.cancel);
         CaptainsLog.Info("Stopped recording gracefully");
         this.recorder.stop();
         // there better be a better way to do this
